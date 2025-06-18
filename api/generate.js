@@ -1,12 +1,22 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Only POST requests allowed' });
+  // 🔧 Add CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+
+  // ✅ Respond early to preflight
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end()
   }
 
-  const { prompt } = req.body;
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Only POST requests allowed' })
+  }
+
+  const { prompt } = req.body
 
   if (!prompt) {
-    return res.status(400).json({ message: 'Missing prompt' });
+    return res.status(400).json({ message: 'Missing prompt' })
   }
 
   try {
@@ -27,10 +37,11 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-    if (!response.ok) return res.status(response.status).json(data);
+    if (!response.ok) return res.status(response.status).json(data)
 
-    res.status(200).send(data.choices[0].message.content);
+    // 🧠 Use consistent format for Electron
+    res.status(200).json({ content: data.choices[0].message.content })
   } catch (err) {
-    res.status(500).json({ error: err.toString() });
+    res.status(500).json({ error: err.toString() })
   }
 }
