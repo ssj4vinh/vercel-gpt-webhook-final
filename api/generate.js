@@ -40,8 +40,14 @@ export default async function handler(req, res) {
     if (!response.ok) return res.status(response.status).json(data)
 
     // 🧠 Use consistent format for Electron
-    res.status(200).json({ content: data.choices[0].message.content })
-  } catch (err) {
-    res.status(500).json({ error: err.toString() })
-  }
-}
+        const data = await response.json();
+    if (!response.ok) return res.status(response.status).json(data)
+
+    const output = data.choices?.[0]?.message?.content || "⚠️ GPT failed to respond."
+
+    const userAgent = req.headers['user-agent'] || ''
+    if (userAgent.includes('Electron')) {
+      res.status(200).json({ content: output })
+    } else {
+      res.status(200).send(output)
+    }
