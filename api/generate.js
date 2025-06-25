@@ -44,12 +44,7 @@ export default async function handler(req, res) {
 
     const output = data.choices?.[0]?.message?.content || '⚠️ GPT failed to respond.'
 
-    const userAgent = req.headers['user-agent'] || ''
-    if (userAgent.includes('Electron')) {
-      res.status(200).json({ content: output })
-    } else {
-      res.status(200).send(output)
-    }
+    res.status(200).json({ output })  // ✅ key changed from content → output
   } catch (err) {
     res.status(500).json({ error: err.toString() })
   }
