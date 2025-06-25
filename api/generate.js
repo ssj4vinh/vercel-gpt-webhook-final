@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // ✅ CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
@@ -26,26 +25,21 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: 'gpt-4o',
         messages: [
-          {
-            role: 'system',
-            content: 'You are a musculoskeletal radiologist assistant.',
-          },
-          {
-            role: 'user',
-            content: prompt,
-          },
+          { role: 'system', content: 'You are a musculoskeletal radiologist assistant.' },
+          { role: 'user', content: prompt }
         ],
-        max_tokens: 1000,
-      }),
+        temperature: 0.3,
+        max_tokens: 1000
+      })
     })
 
     const data = await response.json()
     if (!response.ok) return res.status(response.status).json(data)
 
     const output = data.choices?.[0]?.message?.content || '⚠️ GPT failed to respond.'
-
-    res.status(200).json({ output })  // ✅ key changed from content → output
+    return res.status(200).json({ output })
   } catch (err) {
-    res.status(500).json({ error: err.toString() })
+    console.error('Vercel API Error:', err)
+    return res.status(500).json({ error: err.toString() })
   }
 }
